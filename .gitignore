@@ -1,0 +1,8 @@
+target/
+nbproject/
+nb-configuration.xml
+.idea/
+*.iml
+*.class
+*.war
+META-INF/context.xml
