@@ -6,7 +6,7 @@ package com.smartcampus.resources;
 
 /**
  *
- * @author atiff
+ * @author Aatif Noor
  */
 import com.smartcampus.models.Sensor;
 import com.smartcampus.storage.DataStore;
@@ -27,12 +27,11 @@ public class SensorResource {
 
     private final DataStore dataStore = DataStore.getInstance();
 
-    // GET /api/v1/sensors - Get all sensors (with optional type filter)
+    // GET /api/v1/sensors - Getting all the sensors (with optional type filter)
     @GET
     public Response getAllSensors(@QueryParam("type") String type) {
         List<Sensor> sensors = new ArrayList<>(dataStore.getSensors().values());
         
-        // Filter by type if provided
         if (type != null && !type.trim().isEmpty()) {
             sensors = sensors.stream()
                     .filter(s -> s.getType().equalsIgnoreCase(type))
@@ -42,7 +41,7 @@ public class SensorResource {
         return Response.ok(sensors).build();
     }
 
-    // GET /api/v1/sensors/{sensorId} - Get sensor by ID
+    // GET /api/v1/sensors/{sensorId} - Getting the sensor by ID
     @GET
     @Path("/{sensorId}")
     public Response getSensorById(@PathParam("sensorId") String sensorId) {
@@ -55,33 +54,32 @@ public class SensorResource {
         return Response.ok(sensor).build();
     }
 
-    // POST /api/v1/sensors - Register a new sensor
+    // POST /api/v1/sensors - Registering a new sensor
     @POST
     public Response createSensor(Sensor sensor) {
-        // Validate roomId exists
         if (sensor.getRoomId() == null || !dataStore.getRooms().containsKey(sensor.getRoomId())) {
             return Response.status(422)
                     .entity(Map.of("error", "Room not found with ID: " + sensor.getRoomId()))
                     .build();
         }
         
-        // Generate UUID if not provided
         if (sensor.getId() == null || sensor.getId().trim().isEmpty()) {
             sensor.setId(UUID.randomUUID().toString());
         }
         
-        // Set default status if not provided
         if (sensor.getStatus() == null) {
             sensor.setStatus("ACTIVE");
         }
         
-        // Add sensor to DataStore
         dataStore.getSensors().put(sensor.getId(), sensor);
-        
-        // Add sensor ID to the room
         Room room = dataStore.getRooms().get(sensor.getRoomId());
         room.addSensorId(sensor.getId());
         
         return Response.status(Response.Status.CREATED).entity(sensor).build();
     }
+    
+    @Path("/{sensorId}/readings")
+    public SensorReadingResource getSensorReadingResource(@PathParam("sensorId") String sensorId) {
+        return new SensorReadingResource(sensorId);
+}
 }

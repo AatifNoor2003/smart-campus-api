@@ -6,7 +6,7 @@ package com.smartcampus.models;
 
 /**
  *
- * @author atiff
+ * @author Aatif Noor
  */
 import java.util.UUID;
 
@@ -20,7 +20,6 @@ public class SensorReading {
         this.timestamp = System.currentTimeMillis();
     }
 
-    // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

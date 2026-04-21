@@ -6,7 +6,7 @@ package com.smartcampus.models;
 
 /**
  *
- * @author atiff
+ * @author Aatif Noor
  */
 
 public class Sensor {
@@ -29,7 +29,6 @@ public class Sensor {
         this.currentValue = 0.0;
     }
 
-    // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

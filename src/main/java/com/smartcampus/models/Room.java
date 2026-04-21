@@ -24,13 +24,13 @@ public class Room {
     }
 
     public Room(String id, String name, int capacity, String building, int floor) {
-    this.id = id;
-    this.name = name;
-    this.capacity = capacity;
-    this.building = building;
-    this.floor = floor;
-    this.sensorIds = new ArrayList<>();
-}
+        this.id = id;
+        this.name = name;
+        this.capacity = capacity;
+        this.building = building;
+        this.floor = floor;
+        this.sensorIds = new ArrayList<>();
+    }
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }

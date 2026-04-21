@@ -25,14 +25,14 @@ public class SensorRoom {
 
     private final DataStore dataStore = DataStore.getInstance();
 
-    // GET /api/v1/rooms - Listing all rooms
+    // GET /api/v1/rooms - Listing all the rooms
     @GET
     public Response getAllRooms() {
         List<Room> rooms = new ArrayList<>(dataStore.getRooms().values());
         return Response.ok(rooms).build();
     }
 
-    // GET /api/v1/rooms/{roomId} - Getting rooms by ID
+    // GET /api/v1/rooms/{roomId} - Getting all the rooms by ID
     @GET
     @Path("/{roomId}")
     public Response getRoomById(@PathParam("roomId") String roomId) {

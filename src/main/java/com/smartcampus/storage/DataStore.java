@@ -12,19 +12,23 @@ import com.smartcampus.models.Room;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import com.smartcampus.models.Sensor;
+import com.smartcampus.models.SensorReading;
+import java.util.List;
 
 public class DataStore {
     private static final DataStore INSTANCE = new DataStore();
     private final Map<String, Room> rooms;
     private final Map<String, Sensor> sensors;
+    private final Map<String, List<SensorReading>> sensorReadings;
 
     private DataStore() {
         rooms = new ConcurrentHashMap<>();
-        sensors = new ConcurrentHashMap<>(); 
+        sensors = new ConcurrentHashMap<>();
+        sensorReadings = new ConcurrentHashMap<>();
         
         // Sample room
         Room room1 = new Room("R001", "Lecture Hall A", 100, "Main Building", 1);
-         room1.addSensorId("S001");
+        room1.addSensorId("S001");
         rooms.put("R001", room1);
         
         // Sample sensor
@@ -38,4 +42,5 @@ public class DataStore {
 
     public Map<String, Room> getRooms() { return rooms; }
     public Map<String, Sensor> getSensors() { return sensors; } 
+    public Map<String, List<SensorReading>> getSensorReadings() { return sensorReadings; }
 }
