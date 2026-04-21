@@ -13,33 +13,26 @@ The API follows RESTful principles with a versioned base path `/api/v1`. It uses
 - Resource-based URLs with logical nesting (e.g. `/sensors/{id}/readings`)
 - Standard HTTP methods (GET, POST, DELETE)
 - JSON request and response bodies
-- Appropriate HTTP status codes (200, 201, 404, 409, 422)
+- Appropriate HTTP status codes (200, 201, 404, 409, 422, 403, 500)
 - In-memory storage using `ConcurrentHashMap` for thread safety
 - Sub-resource locator pattern for sensor readings
 
 ## Build & Run Instructions
 
-### Prerequisites
-- JDK 17 or later
-- Apache Tomcat 9 installed
-- Maven (included with NetBeans)
+### Run the Project
 
-### Build the Project
-```bash
-mvn clean package
-```
-
-### Deploy to Tomcat
-1. Copy `target/smart-campus-api.war` to Tomcat's `webapps/` folder
-2. Start Tomcat
-3. Access the API at `http://localhost:8080/smart-campus-api/api/v1/`
-
-### Run in NetBeans
+#### Method 1 - Using NetBeans (Recommended)
 1. Open the project in NetBeans
-2. Right-click project → **Clean and Build**
-3. Right-click project → **Run**
+2. Right-click the project → **Clean and Build**
+3. Right-click the project → **Run**
 4. Tomcat will start and deploy automatically
 5. Access the API at `http://localhost:8080/smart-campus-api/api/v1/`
+
+#### Method 2 - Using Command Line
+1. Build the project: `mvn clean package`
+2. Copy `target/smart-campus-api.war` to Tomcat's `webapps/` folder
+3. Start Tomcat
+4. Access the API at `http://localhost:8080/smart-campus-api/api/v1/`
 
 ## API Endpoints
 
@@ -52,18 +45,18 @@ mvn clean package
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/v1/rooms` | List all rooms |
-| POST | `/api/v1/rooms` | Create a new room (auto-generates UUID) |
+| POST | `/api/v1/rooms` | Create a new room |
 | GET | `/api/v1/rooms/{id}` | Get room by ID |
 | DELETE | `/api/v1/rooms/{id}` | Delete room (fails if room has sensors) |
 
 ### Part 3: Sensor Operations
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/v1/sensors` | List all sensors (optional `?type=` filter) |
+| GET | `/api/v1/sensors` | List all sensors |
 | GET | `/api/v1/sensors/{sensorId}` | Get sensor by ID |
 | POST | `/api/v1/sensors` | Register a new sensor (validates roomId exists) |
 
-### Part 4: Sensor Readings (Sub-Resource)
+### Part 4: Sensor Readings
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/v1/sensors/{sensorId}/readings` | Get all readings for a sensor |
@@ -107,6 +100,34 @@ curl http://localhost:8080/smart-campus-api/api/v1/sensors/S001/readings
 curl -X POST http://localhost:8080/smart-campus-api/api/v1/sensors/S001/readings \
   -H "Content-Type: application/json" \
   -d '{"value":23.5}'
+```
+
+## Error Handling
+
+The API uses standard HTTP status codes and returns meaningful JSON error messages.
+
+| Status Code | Scenario | Example Response |
+|-------------|----------|------------------|
+| 409 Conflict | Deleting a room that still has sensors | `{"error":"Cannot delete room 'R001' - it has 1 sensor(s) still assigned"}` |
+| 422 Unprocessable Entity | Creating a sensor with non-existent roomId | `{"error":"Room not found with ID: XXXX"}` |
+| 403 Forbidden | Adding a reading to a sensor in MAINTENANCE mode | `{"error":"Sensor 'xxx' is currently in maintenance mode and cannot accept new readings"}` |
+| 500 Internal Server Error | Unexpected runtime error | `{"error":"An unexpected internal server error occurred"}` |
+
+## Logging
+
+All API requests and responses are logged to the Tomcat console with
+- HTTP method (GET, POST, DELETE)
+- Request URI
+- Response status code
+
+Example log output:
+
+```text
+--- Incoming Request ---
+Method: DELETE
+URI: http://localhost:8080/smart-campus-api/api/v1/rooms/R001
+--- Outgoing Response ---
+Status: 409
 ```
 
 ## Author
