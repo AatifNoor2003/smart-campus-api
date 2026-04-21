@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import com.smartcampus.models.Room;
+import com.smartcampus.exceptions.LinkedResourceNotFoundException;
 
 @Path("/sensors")
 @Produces(MediaType.APPLICATION_JSON)
@@ -58,9 +59,7 @@ public class SensorResource {
     @POST
     public Response createSensor(Sensor sensor) {
         if (sensor.getRoomId() == null || !dataStore.getRooms().containsKey(sensor.getRoomId())) {
-            return Response.status(422)
-                    .entity(Map.of("error", "Room not found with ID: " + sensor.getRoomId()))
-                    .build();
+            throw new LinkedResourceNotFoundException("Room not found with ID: " + sensor.getRoomId());
         }
         
         if (sensor.getId() == null || sensor.getId().trim().isEmpty()) {

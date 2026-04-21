@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.smartcampus.exceptions.RoomNotEmptyException;
 
 @Path("/rooms")
 @Produces(MediaType.APPLICATION_JSON)
@@ -66,9 +67,7 @@ public class SensorRoom {
         }
         
         if (room.getSensorIds() != null && !room.getSensorIds().isEmpty()) {
-            return Response.status(Response.Status.CONFLICT)
-                    .entity(Map.of("error", "Cannot delete room with active sensors"))
-                    .build();
+            throw new RoomNotEmptyException("Cannot delete room '" + roomId + "' - it has " + room.getSensorIds().size() + " sensor(s) still assigned");
         }
         
         dataStore.getRooms().remove(roomId);

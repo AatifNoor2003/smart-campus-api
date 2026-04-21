@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.ArrayList;
+import com.smartcampus.exceptions.SensorUnavailableException;
 
-@Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class SensorReadingResource {
@@ -53,6 +53,10 @@ public class SensorReadingResource {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(Map.of("error", "Sensor not found"))
                     .build();
+        }
+        
+        if ("MAINTENANCE".equals(sensor.getStatus())) {
+            throw new SensorUnavailableException("Sensor '" + sensorId + "' is currently in maintenance mode and cannot accept new readings");
         }
         
         if (reading.getId() == null) {
