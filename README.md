@@ -28,7 +28,7 @@ Key design decisions:
 | Jackson | via jersey-media-json-jackson |
 
 ## Project Structure
-
+```
 src/main/java/
 ├── com/smartcampus/
 │   └── SmartCampusApplication.java           # JAX-RS Application entry point     
@@ -54,12 +54,13 @@ src/main/java/
 │   └── GlobalExceptionMapper.java            # Catch-all for 500 errors
 └── com/smartcampus/filters/
     └── LoggingFilter.java                    # Logs all requests and responses
+```
 
 ## Build & Run Instructions
 
 ### Prerequisites
 
-Before you begin, make sure you have the following installed:
+Before starting, make sure that the following are installed:
 
 1. **JDK 17** — Download from https://adoptium.net
    - After installing, verify with: `java -version`
@@ -91,7 +92,7 @@ mvn clean package
 This will compile the project and generate a WAR file at:
 target/smart-campus-api.war
 
-If you are using NetBeans:
+If using NetBeans:
 1. Open the project in NetBeans
 2. Right-click the project → **Clean and Build**
 3. The WAR file will appear in the `target/` folder
@@ -101,14 +102,14 @@ If you are using NetBeans:
 ### Step 3 — Deploy to Tomcat
 
 **Option A — Manual deployment:**
-1. Copy `target/smart-campus-api.war` into your Tomcat `webapps/` folder
+1. Copy `target/smart-campus-api.war` into the Tomcat `webapps/` folder
 2. Start Tomcat:
    - Windows: run `bin\startup.bat`
    - Mac/Linux: run `bin/startup.sh`
 3. Wait for Tomcat to start (usually 5–10 seconds)
 
 **Option B — Deploy via NetBeans:**
-1. In NetBeans, make sure Tomcat 9 is configured as your server
+1. In NetBeans, make sure Tomcat 9 is configured as the server
 2. Right-click the project → **Run**
 3. NetBeans will build, deploy, and start Tomcat automatically
 
@@ -116,13 +117,13 @@ If you are using NetBeans:
 
 ### Step 4 — Verify the Server is Running
 
-Open your browser or use curl:
+Open in browser or use curl:
 
 ```bash
 curl http://localhost:8080/smart-campus-api/api/v1/
 ```
 
-You should see:
+Output visible should be:
 ```json
 {
   "name": "Smart Campus API",
@@ -245,8 +246,7 @@ Expected output:
 curl -X DELETE http://localhost:8080/smart-campus-api/api/v1/rooms/LIB-301
 ```
 
-Expected output:
-Empty response
+Expected output: Empty response
 
 ### 6. Register a new sensor
 ```bash
@@ -333,5 +333,5 @@ Expected output:
 
 ## Author Details
 **Name - Aatif Noor**  
-**IIT Student ID - 20232258**
+**IIT Student ID - 20232258**  
 **UOW Student ID - w2120211**
