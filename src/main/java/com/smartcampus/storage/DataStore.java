@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.smartcampus.models.Sensor;
 import com.smartcampus.models.SensorReading;
 import java.util.List;
+import java.util.ArrayList;
 
 public class DataStore {
     private static final DataStore INSTANCE = new DataStore();
@@ -27,13 +28,21 @@ public class DataStore {
         sensorReadings = new ConcurrentHashMap<>();
         
         // Sample room
-        Room room1 = new Room("R001", "Lecture Hall A", 100, "Main Building", 1);
+        Room room1 = new Room("R001", "Lecture Hall A", 100);
         room1.addSensorId("S001");
         rooms.put("R001", room1);
         
         // Sample sensor
         Sensor sensor1 = new Sensor("S001", "CO2", "R001");
         sensors.put("S001", sensor1);
+        
+        // Sample reading for sensor S001
+        List<SensorReading> readings = new ArrayList<>();
+        SensorReading reading1 = new SensorReading();
+        reading1.setValue(425.5);
+        reading1.setTimestamp(System.currentTimeMillis());
+        readings.add(reading1);
+        sensorReadings.put("S001", readings);
     }
 
     public static DataStore getInstance() {
