@@ -30,7 +30,7 @@ public class DiscoveryResource {
         discovery.put("name", "Smart Campus API");
         discovery.put("description", "A RESTful API for managing campus rooms and sensors");
         discovery.put("version", "1.0");
-        discovery.put("admin_contact", "admin@smartcampus.edu");
+        discovery.put("contact", "noor.20232258@iit.ac.lk");
         discovery.put("resources", resources);
         
         return Response.ok(discovery).build();

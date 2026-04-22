@@ -16,7 +16,6 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import com.smartcampus.models.Room;
 import com.smartcampus.exceptions.LinkedResourceNotFoundException;
@@ -63,7 +62,15 @@ public class SensorResource {
         }
         
         if (sensor.getId() == null || sensor.getId().trim().isEmpty()) {
-            sensor.setId(UUID.randomUUID().toString());
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", "Sensor ID is required"))
+                    .build();
+        }
+
+        if (dataStore.getSensors().containsKey(sensor.getId())) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(Map.of("error", "Sensor ID already exists: " + sensor.getId()))
+                    .build();
         }
         
         if (sensor.getStatus() == null) {

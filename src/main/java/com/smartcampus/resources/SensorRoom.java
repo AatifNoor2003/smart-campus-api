@@ -16,7 +16,6 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import com.smartcampus.exceptions.RoomNotEmptyException;
 
 @Path("/rooms")
@@ -49,9 +48,19 @@ public class SensorRoom {
     // POST /api/v1/rooms - Creating a new room
     @POST
     public Response createRoom(Room room) {
-        String id = UUID.randomUUID().toString();
-        room.setId(id);
-        dataStore.getRooms().put(id, room);
+        if (room.getId() == null || room.getId().trim().isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", "Room ID is required"))
+                    .build();
+        }
+    
+        if (dataStore.getRooms().containsKey(room.getId())) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(Map.of("error", "Room ID already exists: " + room.getId()))
+                    .build();
+        }
+    
+        dataStore.getRooms().put(room.getId(), room);
         return Response.status(Response.Status.CREATED).entity(room).build();
     }
 
