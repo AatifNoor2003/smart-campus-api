@@ -332,47 +332,47 @@ Expected output:
 ### Part 1: Service Architecture & Setup
 **1. Project & Application Configuration**
 
-By default, JAX-RS creates a new instance of the resource class for every incoming HTTP request. The runtime does NOT treat it as a singleton. Because a new instance is created per request, any data stored in the instance variables would be lost after the request ends. To prevent data loss, all shared states are stored in a static singleton DataStore class. The DataStore uses ConcurrentHashMap instead of a regular HashMap. This keeps the data safe when multiple requests hit the API at the same time. The ConcurrentHashMap handles concurrent access automatically, so no data is lost or corrupted.
+JAX-RS by default generates a new instance of the resource class with each incoming HTTP request. It is not considered a singleton in the runtime. Since a new instance is created each time there is a request, the data that is stored in the instance variables would be lost when the request is terminated. All shared states are stored in a static singleton DataStore to avoid losing data. A ConcurrentHashMap is used in place of a regular HashMap in the DataStore. This ensures that the data is secure when there are several requests to the API at the same time. The ConcurrentHashMap automatically supports concurrent access, thus there is no loss or corruption of data.
 
 **2. The “Discovery” Endpoint**
 
-API responses include hyperlinks to related resources and available actions, which is what HATEOAS means. It is considered a hallmark of advanced RESTful design because it makes the API self-descriptive and discoverable. This helps clients navigate the API dynamically without needing any prior knowledge of its URL structure. This benefits client developers because they do not need to hardcode URLs or depend entirely on external documentation. Instead, the API itself guides them to the next available actions through the links embedded in the responses.
+The API responses contain links to the related resources, and that is what the term HATEOAS implies. This is regarded as a hallmark as it renders APIs self-descriptive and discoverable thus assisting clients to navigate it without prior knowledge of its URL structure. This is advantageous to client developers as they do not have to hard code URLs or rely wholly on external documentation. Rather, the API itself directs them to the subsequent actions with the links contained in the responses.
 
 ### Part 2: Room Management
 **1. Room Resource Implementation**
 
-Returning only IDs reduces network bandwidth and response size, which is beneficial for large collections. Because of this, the client must make additional GET requests to get details for each room. This increases the time taken and also makes the process more complex for the client. On the other hand, returning the complete list of rooms increases the response size but provides the client with all data in a single request. This is much easier and faster. The correct choice depends on the situation. If it’s a dashboard, displaying the complete list is better, but IDs alone may be better when the client only needs references. 
+The use of IDs alone saves bandwidth and response size in the network, a plus when dealing with large collections. Due to this reason, the client will have to send extra GET requests to obtain details on each room. This is not only time consuming but also complicates the process to the client. The size of response is larger when you give the full list of rooms, but it gives all data to the client in one request. This is far simpler and quicker, but the right decision will hinge on the circumstance. When it is a dashboard, it is more appropriate to show the entire list, whereas IDs might be more suitable when the client requires only references. 
 
 **2. Room Deletion & Safety Logic**
 
-Yes, the DELETE operation is idempotent. The first DELETE removes the room from the DataStore and returns a “204 No Content” success response. The second DELETE on the same room will return a “404 Not Found” error because the room no longer exists. The HTTP status codes may differ (204 for the first, 404 for the second), but the resource state doesn’t change. Repeating the DELETE doesn’t cause any side effects or data corruption. Therefore, this proves that the DELETE operation is idempotent.
+Yes, the DELETE operation is idempotent. The initial DELETE will erase the room in the DataStore and will send a 204 No Content success response. The second DELETE on the same room will result in a 404 Not Found error since the room does not exist anymore. The status codes of the HTTP can vary (204 on the first, 404 on the second), but the state of the resource remains the same. There are no side effects or data corruption with repeating the DELETE. So this is to show that the DELETE operation is idempotent.
 
 ### Part 3: Sensor Operations & Linking
 **1. Sensor Resource & Integrity**
 
-The @Consumes(MediaType.APPLICATION_JSON) annotation tells JAX-RS that the endpoint only accepts JSON data. If a client sends data in a different format, such as text/plain or application/xml, JAX-RS won't know how to handle it. It will automatically send back a 415 Unsupported Media Type error before the code even runs. This is good because it stops wrong data formats from reaching the server.
+The @Consumes(MediaType.APPLICATION_JSON) annotation informs JAX-RS that the endpoint accepts only the data in the form of JSON. In case a client submits data in another format, e.g. text/plain or application/xml, JAX-RS is not aware of how to process it. It will automatically resend a 415 Unsupported Media Type error before even the code runs. This is desirable since it prevents the transmission of erroneous data formats to the server.
 
 **2. Filtered Retrieval & Search**
 
-Using query parameters like “?type=CO2” is better for filtering because it keeps the URL clean and makes filtering optional. Using a path like “/sensors/type/CO2” would make it look like CO2 is a resource, which is not true. Query parameters also make it easy to add additional filters, like “?type=CO2&status=ACTIVE”. Most REST APIs use query parameters for searching and filtering, so this is what the developers expect.
+Filtering with query parameters such as “?type=CO2 is more appropriate since it leaves the URL clean and filtering optional. Path such as /sensors/type/CO2 would appear that CO2 is a resource, which is not the case. Additional filters can also be easily added using query parameters such as:?type=CO2&status=ACTIVE. The developers expect query parameters to be used in searching and filtering, which is the case with most REST APIs.
 
 ### Part 4: Deep Nesting with Sub – Resources
 **1. The Sub-Resource Locator Pattern**
 
-The sub-resource locator pattern sends nested path requests to a separate class instead of handling everything in one controller. In this project, SensorResource has a locator method that gives back a SensorReadingResource instance when “/sensors/{id}/readings” is called. This makes the code easier to maintain because each class focuses on a single task. If all the nested paths were placed in one large controller class, the code would become hard to read and test as the API grows.
+In the sub-resource locator pattern, nested path requests are sent to another class rather than being dealt with in a single controller. SensorResource in this project has a locator method which returns a SensorReadingResource instance when called by /sensors/{id}/readings. This simplifies the upkeep of the code since every class is devoted to one task. With all the nested paths in a single large controller class, the code would be difficult to read and test as the API expands.
 
 ### Part 5: Advanced Error Handling, Exception Mapping & Logging
 **2. Dependency Validation (422 Unprocessable Entity)**
 
-An HTTP 404 Not Found error means the URL does not exist. When creating a sensor, the URL “/api/v1/sensors” exists, so a 404 error would be wrong. The real issue is that the roomId inside the JSON doesn't match any real room. That's why 422 is better. It tells the client that it understands the request and the JSON is valid, but one of the values doesn’t work. This helps the client fix the data, not change the URL.
+In case the URL is not available, a 404 Not Found error is issued. In the context of a sensor, the endpoint of the API is present, hence no 404 error can be possible. The actual problem is that the roomId within the JSON does not correspond with any real room. That is why 422 is better. It informs the client that it knows the request and the JSON is valid, but one of the values fail. This assists the client to repair the data, but not the URL.
 
 **4. The Global Safety Net (500)**
 
-If Java stack traces leak to clients, attackers can see which Java version and libraries are being used. They can also find file paths, class names, and line numbers. This helps them identify known security holes in those specific versions or figure out where to attack.
+In case Java stack traces are leaked to clients, attackers can view the version and libraries being used in Java. They are also able to locate file paths, class names and line numbers. This assists them in determining the known security holes in those particular versions or determining where to attack.
 
 **5. API Request & Response Logging Filters**
 
-With a JAX-RS filter, the logging logic is written once and applied automatically to every request. Manually adding “Logger.info()” to each method would repeat the same code many times and could cause new endpoints to miss logging statements. Filters also keep resource classes clean, as they focus only on business logic. If the logging format needs to change, only the filter class needs to be updated, not every resource method.
+The logging logic is coded once and applied to all requests with a filter. The repeated code would be to manually add the Logger.info() to every method and new endpoints would not see the logging statements. The filters also maintain cleanliness of resource classes by concentrating on the logic. In case the logging format should be altered, then it is only the filter class that should be changed, not all the resource methods.
 
 ---
 
